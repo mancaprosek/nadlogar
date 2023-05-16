@@ -210,3 +210,54 @@ class SplosniClenAritmeticnegaEnacbi(Problem):
             "a1": sympy.latex(a1),
             "d": sympy.latex(d),
         }
+
+# MOJA NALOGA :)
+
+class GeometrijskoZaporedje(Problem):
+    """Naloga za zapis prvega člena in količnika geometrijskega zaporedja, če imaš podani dve enačbi z različnimi členi zaporedja."""
+
+    default_instruction = r"""Določi prvi člen in količnik geometrijskega zaporedja, pri katerem je $a_{@n1}=@vrednost1$ in $a_{@n2} @operator a_{@n3}=@vrednost2$."""
+    default_solution = r"""$a_1=@a1$, $k=@k$"""
+
+    class Meta:
+        verbose_name = "Zaporedja / enačbi geometrijskega"
+
+    def clen_geometrijskega(self, a1, k, n):
+        """
+        Izračuna n-ti člen geometrijskega zaporedja.
+
+        :param a1: prvi člen geometrijskega zaporedja
+        :param k: količnik geometrijskega zaporedja
+        :param n: indeks člena geometrijskega zaporedja
+        :return: n-ti člen geometrijskega zaporedja
+
+        >>> clen_geometrijskega(3, 2, 5)
+        48
+
+        >>> clen_geometrijskega(-4, 1/2, 3)
+        -1.0
+        """
+        an = a1 * k ** (n - 1)
+        return an
+
+    def generate(self):
+        a1 = random.choice([x for x in range(-5, 5) if x != 0] + [sympy.Rational(1, x) for x in [-3, -2, 2, 3]])
+        k = random.choice([x for x in [-3, -2, 2, 3]] + [sympy.Rational(1, x) for x in [-3, -2, 2, 3]])
+
+        operatorji = {'+': lambda a, b: a + b, '-': lambda a, b: a - b, '\cdot': lambda a, b: a * b}
+
+        operator = random.choice(list(operatorji.keys()))
+        if operator in ['+', '-']:
+            k = random.randint(2, 5)
+            seznam = [k, k + 1, k + 2]
+            random.shuffle(seznam)
+            [n1, n2, n3] = seznam
+        else:
+            [n1, n2, n3] = random.sample(list(range(1, 5)), 3)
+        vrednost1 = self.clen_geometrijskega(a1, k, n1)
+        vrednost2 = operatorji[operator](self.clen_geometrijskega(a1, k, n2), self.clen_geometrijskega(a1, k, n3))
+
+        return {'n1': n1, 'n2': n2, 'n3': n3, 'operator': operator, 'vrednost1': vrednost1,
+                'vrednost2': vrednost2, 'a1': a1, 'k': k}
+
+# print(GeometrijskoZaporedje().generate())
